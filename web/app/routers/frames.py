@@ -1,3 +1,4 @@
+import logging
 import shutil
 import uuid
 from datetime import date, datetime
@@ -24,6 +25,9 @@ from web.app.role import Role
 from web.app.schemas import GetResponce, Message, PostResponce, StaticUserDataInDB
 from web.app.security import get_current_active_user
 from web.app.settings import ACCESS_KEY, S3_ENDPOINT_URL, SECRET_KEY
+
+logging.basicConfig(format="%(asctime)s - %(levelname)s - %(name)s - %(message)s")
+logger = logging.getLogger("minio")
 
 router = APIRouter(
     tags=["Frames Management"],
@@ -181,7 +185,7 @@ async def delete_data(
         )
         errors = client.remove_objects(str(user_bucket_name), delete_object_list)
         for error in errors:
-            print("Error occured when deleting object", error)
+            logger.error("Error occured when deleting object", error)
         client.remove_bucket(user_bucket_name)
         await delete_all_objects_from_db(session, str(bucket_name), current_user.user_name)
         return JSONResponse(
